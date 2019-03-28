@@ -9,10 +9,6 @@
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{cmucheme}[2018/05/18 CMU ChemE MS research project report template style file]
 
-\newif\if@natbib\@natbibtrue
-\DeclareOption{nonatbib}{
-  \@natbibfalse
-}
 
 \ProcessOptions\relax
 
@@ -23,36 +19,8 @@
 % definitions
 \def\advisor#1{\def\@advisor{#1}}\def\@advisor{}
 \def\head#1{\def\@head{#1}}\def\@head{}
+\def\semester#1{\def\@semester{#1}}\def\@semester{}
 \def\department#1{\def\@department{#1}}\def\@department{}
-
-% fix incompatibilities between lineno and amsmath
-\AtBeginDocument{%
-  \@ifpackageloaded{amsmath}{%
-    \newcommand*\patchAmsMathEnvironmentForLineno[1]{%
-      \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
-      \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
-      \renewenvironment{#1}%
-                       {\linenomath\csname old#1\endcsname}%
-                       {\csname oldend#1\endcsname\endlinenomath}%
-    }%
-    \newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
-      \patchAmsMathEnvironmentForLineno{#1}%
-      \patchAmsMathEnvironmentForLineno{#1*}%
-    }%
-    \patchBothAmsMathEnvironmentsForLineno{equation}%
-    \patchBothAmsMathEnvironmentsForLineno{align}%
-    \patchBothAmsMathEnvironmentsForLineno{flalign}%
-    \patchBothAmsMathEnvironmentsForLineno{alignat}%
-    \patchBothAmsMathEnvironmentsForLineno{gather}%
-    \patchBothAmsMathEnvironmentsForLineno{multline}%
-    \renewcommand{\bibname}{References}
-  }{}
-}
-
-% load natbib unless told otherwise
-\if@natbib
-  \RequirePackage{natbib}
-\fi
 
 % set page geometry
 \usepackage[verbose=true,letterpaper]{geometry}
@@ -203,9 +171,9 @@
         \par \MakeUppercase{\@department}
         \par \vspace{1.5em}
         \includegraphics[scale = 0.2]{cmu_logo}
-        \par \@date
+        % \par \@date
     \end{center}
-    \clearpage
+    \clearpage \null \thispagestyle{empty} \newpage
     \@thanks
   \endgroup
   \let\maketitle\relax
@@ -230,16 +198,19 @@
   \vbox{%
     \hsize\textwidth
     \linewidth\hsize
-    \vskip 0.5in
+    \linespread{0.7} \selectfont
+    % \vskip 0.15in
     \@toptitlebar
     \centering
-    {\LARGE\bf \@title\par}
+    {\LARGE\bf \linespread{1.1} \selectfont \@title\par}
     \@bottomtitlebar
     \vskip 0.15in
-    Author's Name: \hfill Advisor's Name: 
-    \par \@author \hfill \@advisor
-    \vspace{0.5em} \par \hfill Department Head: 
-    \par \hfill \@head
+    {\bfseries Author's Name: \hfill \tiny \ ~ }
+    \par \@author \hfill \phantom{2}
+    \par \vspace{1em} {\bfseries Advisor's Name: \hfill} \phantom{2}
+    \par \@advisor \hfill \phantom{2}
+    \vspace{1em} \par {\bfseries Semester of Graduation:}  \hfill \phantom{2}
+    \par \@semester \hfill \phantom{2}
   }
 }
 
@@ -284,15 +255,93 @@
 \renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
 \renewcommand\cftsecdotsep{1.2}
 
-% packages
+% basic packages
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
 \usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
-\usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
+\usepackage{amsmath}
+\usepackage{mathtools}
 \usepackage[nottoc, notlot, notlof]{tocbibind}
+
+% table packages
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{siunitx}
+\sisetup{table-number-alignment=center, exponent-product=\cdot}
+\usepackage{rotating}
+\usepackage[justification=centering]{caption}
+\usepackage{lscape}
+\usepackage{booktabs}       % professional-quality tables
+
+% lipsum
+\usepackage{lipsum}
+
+% set spacing for LOF and LOT
+\renewcommand\cftfigafterpnum{\vskip5pt\par}
+\renewcommand\cfttabafterpnum{\vskip5pt\par}
+
+% appendix packages
+\usepackage[titletoc]{appendix}
+\usepackage{tocvsec2}
+
+% tikz packages
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\usetikzlibrary{shapes}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{patterns}
+
+% citation format
+\usepackage[sort&compress,numbers,super]{natbib}
+\usepackage{cite}
+\renewcommand\citeleft{(}
+\renewcommand\citeright{)}
+\makeatletter
+\renewcommand{\@biblabel}[1]{(#1)}
+\makeatother
+\renewcommand{\bibname}{References}
+
+% settings for nomenclatures
+\usepackage{nomencl}
+\makenomenclature
+\setlength\nomlabelwidth{1.5cm}   % set the indent for the label
+\usepackage{etoolbox}
+\renewcommand\nomgroup[1]{%
+  \item[\bfseries
+  \ifstrequal{#1}{A}{Sets}{%
+  \ifstrequal{#1}{B}{Parameters}{%
+  \ifstrequal{#1}{C}{Variables}{}}}%
+]}
+
+% 4 lines per inch
+\linespread{1.302}
+\selectfont
+
+% new bar (long enough)
+\makeatletter
+\newsavebox\myboxA
+\newsavebox\myboxB
+\newlength\mylenA
+
+\renewcommand*\bar[2][0.75]{%
+    \sbox{\myboxA}{$\m@th#2$}%
+    \setbox\myboxB\null% Phantom box
+    \ht\myboxB=\ht\myboxA%
+    \dp\myboxB=\dp\myboxA%
+    \wd\myboxB=#1\wd\myboxA% Scale phantom
+    \sbox\myboxB{$\m@th\overline{\copy\myboxB}$}%  Overlined phantom
+    \setlength\mylenA{\the\wd\myboxA}%   calc width diff
+    \addtolength\mylenA{-\the\wd\myboxB}%
+    \ifdim\wd\myboxB<\wd\myboxA%
+       \rlap{\hskip 0.5\mylenA\usebox\myboxB}{\usebox\myboxA}%
+    \else
+        \hskip -0.5\mylenA\rlap{\usebox\myboxA}{\hskip 0.5\mylenA\usebox\myboxB}%
+    \fi}
+\makeatother
 
 \endinput
